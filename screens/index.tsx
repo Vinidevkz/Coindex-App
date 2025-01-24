@@ -41,7 +41,7 @@ import {
   FontAwesome6,
   MaterialCommunityIcons,
   MaterialIcons,
-  Ionicons
+  Ionicons,
 } from "@expo/vector-icons";
 
 export default function Home() {
@@ -49,6 +49,8 @@ export default function Home() {
   const [trandingEthereum, setTrandingEthereum] = useState(false);
   const [trandingDogecoin, setTrandingDogecoin] = useState(true);
   const [trandingLitecoin, setTrandingLitecoin] = useState(false);
+
+  const [moeda, setMoeda] = useState<string>("Dólar");
 
   const [valores, setValores] = useState<ValoresAPI | null>(null);
   const [valoresGraf, setValoresGraf] = useState<ValorGrafico[] | null>(null);
@@ -58,9 +60,16 @@ export default function Home() {
   const [grafDogecoin, setGrafDogecoin] = useState<ValorGrafico[] | null>(null);
   const [grafLitecoin, setGrafLitecoin] = useState<ValorGrafico[] | null>(null);
 
-  const ultimoValor = useRef(null);
-  const [icon, setIcon] = useState<"trending-up" | "trending-down">();
+  const ultimoValorCompra = useRef<number | null>(null);
+  const ultimoValorVenda = useRef<number | null>(null);
+
+  const [iconBid, setIconBid] = useState<"trending-up" | "trending-down">();
+  const [iconAsk, setIconAsk] = useState<"trending-up" | "trending-down">();
+
   const [isModalVisible, setModalVisible] = useState(false);
+  const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+  const [isDropdownGrafVisible, setIsDropdownGrafVisible] = useState(false);
+
   const [selectGraf, setSelectGraf] = useState<keyof ValorGrafico>("bid");
 
   const toggleModal = () => {
@@ -100,6 +109,13 @@ export default function Home() {
       iconName: "litecoin-sign",
       trading: trandingLitecoin,
     },
+  ];
+
+  const opcoesGrafico = [
+    { label: "Mais alto", value: "high" },
+    { label: "Mais baixo", value: "low" },
+    { label: "Compra", value: "bid" },
+    { label: "Venda", value: "ask" },
   ];
 
   type Moeda = {
@@ -151,7 +167,10 @@ export default function Home() {
   };
 
   const valoresGrafico = async () => {
-    const url = "https://economia.awesomeapi.com.br/json/daily/USD-BRL/6";
+    const coinurl =
+      moeda === "Dólar" ? "USD-BRL" : moeda === "Euro" ? "EUR-BRL" : "JPY-BRL";
+
+    const url = `https://economia.awesomeapi.com.br/json/daily/${coinurl}/6`;
     try {
       const request = await fetch(url);
       const response = await request.json();
@@ -220,25 +239,99 @@ export default function Home() {
 
     fetchAll();
 
-    const interval = setInterval(fetchAll, 10000);
+    const interval = setInterval(fetchAll, 5000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [moeda]);
   //
 
   useEffect(() => {
-    if (valores && valores.USDBRL) {
-      const novoValor = parseFloat(valores.USDBRL.bid);
+    if (moeda === "Dólar") {
+      if (valores && valores.USDBRL) {
+        const novoValor = parseFloat(valores.USDBRL.bid);
 
-      if (ultimoValor.current !== null) {
-        if (novoValor > ultimoValor.current) {
-          setIcon("trending-up");
-        } else {
-          setIcon("trending-down");
+        if (ultimoValorCompra.current !== null) {
+          if (novoValor > ultimoValorCompra.current) {
+            setIconBid("trending-up");
+          } else {
+            setIconBid("trending-down");
+          }
         }
+        ultimoValorCompra.current = novoValor;
+        console.log("Ultimo valor de compra: ", ultimoValorCompra);
       }
-      ultimoValor.current = novoValor;
-      console.log("Ultimo valor atualizado:", ultimoValor.current);
+
+      if (valores && valores.USDBRL) {
+        const novoValor = parseFloat(valores.USDBRL.ask);
+
+        if (ultimoValorVenda.current !== null) {
+          if (novoValor > ultimoValorVenda.current) {
+            setIconAsk("trending-up");
+          } else {
+            setIconAsk("trending-down");
+          }
+        }
+        ultimoValorVenda.current = novoValor;
+        console.log("Ultimo valor de venda: ", ultimoValorVenda);
+      }
+    }
+
+    if (moeda === "Euro") {
+      if (valores && valores.EURBRL) {
+        const novoValor = parseFloat(valores.EURBRL.bid);
+
+        if (ultimoValorCompra.current !== null) {
+          if (novoValor > ultimoValorCompra.current) {
+            setIconBid("trending-up");
+          } else {
+            setIconBid("trending-down");
+          }
+        }
+        ultimoValorCompra.current = novoValor;
+        console.log("Ultimo valor de compra: ", ultimoValorCompra);
+      }
+
+      if (valores && valores.EURBRL) {
+        const novoValor = parseFloat(valores.EURBRL.ask);
+
+        if (ultimoValorVenda.current !== null) {
+          if (novoValor > ultimoValorVenda.current) {
+            setIconAsk("trending-up");
+          } else {
+            setIconAsk("trending-down");
+          }
+        }
+        ultimoValorVenda.current = novoValor;
+        console.log("Ultimo valor de venda: ", ultimoValorVenda);
+      }
+    }
+
+    if (moeda === "Iene") {
+      if (valores && valores.JPYBRL) {
+        const novoValor = parseFloat(valores.JPYBRL.bid);
+
+        if (ultimoValorCompra.current !== null) {
+          if (novoValor > ultimoValorCompra.current) {
+            setIconBid("trending-up");
+          } else {
+            setIconBid("trending-down");
+          }
+        }
+        ultimoValorCompra.current = novoValor;
+      }
+
+      if (valores && valores.JPYBRL) {
+        const novoValor = parseFloat(valores.JPYBRL.ask);
+
+        if (ultimoValorVenda.current !== null) {
+          if (novoValor > ultimoValorVenda.current) {
+            setIconAsk("trending-up");
+          } else {
+            setIconAsk("trending-down");
+          }
+        }
+        ultimoValorVenda.current = novoValor;
+      }
     }
   }, [valores]);
 
@@ -261,6 +354,14 @@ export default function Home() {
       day: "2-digit",
       month: "2-digit",
     });
+  };
+
+  const toggleDropdownMoedas = () => {
+    setIsDropdownVisible(!isDropdownVisible);
+  };
+
+  const toggleDropdownGrafMoedas = () => {
+    setIsDropdownGrafVisible(!isDropdownGrafVisible);
   };
 
   let datas: string[] = [];
@@ -310,41 +411,59 @@ export default function Home() {
             s.line,
             {
               zIndex: 1,
-              paddingHorizontal: 15,
               paddingTop: statusBarHeight,
-              backgroundColor: "#222222",
-              borderRadius: 30,
-
+              backgroundColor: "#121212",
+              alignItems: "center",
+              justifyContent: "center",
             },
           ]}
         >
-          <Text style={[s.subititle, { fontSize: 25 }]}>
-            Coinde<Text style={{ color: "#fcf949" }}>x</Text>
-          </Text>
+          <View
+            style={[
+              s.line,
+              {
+                backgroundColor: "#222222",
+                borderRadius: 20,
+                paddingHorizontal: 20,
+                width: "100%",
+              },
+            ]}
+          >
+            <Text style={[s.subititle, { fontSize: 25 }]}>
+              Coinde<Text style={{ color: "#fcf949" }}>x</Text>
+            </Text>
 
-          <TouchableOpacity>
-            <FontAwesome name="question-circle-o" size={35} color="#fcf949" />
-          </TouchableOpacity>
+            <TouchableOpacity onPress={toggleModal}>
+              <FontAwesome name="question-circle-o" size={35} color="#fcf949" />
+            </TouchableOpacity>
+          </View>
         </View>
 
-        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+        <ScrollView
+          contentContainerStyle={{ flexGrow: 1 }}
+          showsVerticalScrollIndicator={false}
+        >
           <View style={s.header}>
-            <View
+            <TouchableOpacity
+              onPress={toggleDropdownMoedas}
+              activeOpacity={0.6}
               style={{
                 flexDirection: "row",
-                width: '100%',
+                width: "95%",
                 paddingHorizontal: 15,
                 marginVertical: 15,
                 alignItems: "center",
-                justifyContent: 'space-between',
+                justifyContent: "space-between",
                 borderWidth: 2,
                 borderRadius: 20,
-                borderColor: '#fcf949',
-                padding: 15
+                borderColor: "#fcf949",
+                padding: 15,
               }}
             >
-              <View style={{flexDirection: "row", gap: 10}}>
-              <Text style={[s.subititle, {fontSize: 25}]}>Dólar atual</Text>
+              <View style={{ flexDirection: "row", gap: 10 }}>
+                <Text style={[s.subititle, { fontSize: 25 }]}>
+                  {moeda} atual
+                </Text>
               </View>
 
               <View
@@ -362,10 +481,37 @@ export default function Home() {
                 />
                 <Image
                   style={s.profileBackground}
-                  source={require("../src/assets/imgs/usa.png")}
+                  source={
+                    moeda === "Dólar"
+                      ? require("../src/assets/imgs/usa.png")
+                      : moeda === "Euro"
+                      ? require("../src/assets/imgs/european.png")
+                      : require("../src/assets/imgs/japan.png")
+                  }
                 />
               </View>
-            </View>
+            </TouchableOpacity>
+
+            {isDropdownVisible && (
+              <View style={[s.dropdown, { top: 100 }]}>
+                {["Dólar", "Euro", "Iene"].map((option, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    onPress={() => {
+                      setMoeda(option),
+                        toggleDropdownMoedas(),
+                        valoresGrafico();
+                    }}
+                    style={{
+                      paddingVertical: 10,
+                      paddingHorizontal: 15,
+                    }}
+                  >
+                    <Text style={[s.text, { fontSize: 18 }]}>{option}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
 
             <View style={s.card}>
               <View style={{ paddingBottom: 15 }}>
@@ -392,17 +538,26 @@ export default function Home() {
                         { fontSize: 25, alignSelf: "flex-start" },
                       ]}
                     >
-                      {valores && valores.USDBRL ? (
-                        <Text>R$ {valores.USDBRL.bid}</Text>
+                      {valores ? (
+                        <Text>
+                          R${" "}
+                          {moeda === "Dólar"
+                            ? valores.USDBRL.bid
+                            : moeda === "Euro"
+                            ? valores.EURBRL.bid
+                            : moeda === "Iene"
+                            ? valores.JPYBRL.bid
+                            : "Sem dados"}
+                        </Text>
                       ) : (
                         <ActivityIndicator size={"small"} color={"#fcf949"} />
                       )}
                     </Text>
 
                     <Feather
-                      name={icon}
+                      name={iconBid}
                       size={25}
-                      color={icon == "trending-up" ? "#ff3646" : "#7aff52"}
+                      color={iconBid == "trending-up" ? "#ff3646" : "#7aff52"}
                     />
                   </View>
                 </View>
@@ -417,24 +572,39 @@ export default function Home() {
                     Valor de venda:
                   </Text>
 
-                  <View style={{flexDirection: 'row', gap: 10, alignItems: 'center'}}>
-                  <Text
-                    style={[
-                      s.subititle,
-                      { fontSize: 25, alignSelf: "flex-start" },
-                    ]}
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      gap: 10,
+                      alignItems: "center",
+                    }}
                   >
-                    {valores && valores.USDBRL ? (
-                      `R$ ${valores.USDBRL.ask}`
-                    ) : (
-                      <ActivityIndicator size={"small"} color={"#fcf949"} />
-                    )}
-                  </Text>
+                    <Text
+                      style={[
+                        s.subititle,
+                        { fontSize: 25, alignSelf: "flex-start" },
+                      ]}
+                    >
+                      {valores ? (
+                        <Text>
+                          R${" "}
+                          {moeda === "Dólar"
+                            ? valores.USDBRL.ask
+                            : moeda === "Euro"
+                            ? valores.EURBRL.ask
+                            : moeda === "Iene"
+                            ? valores.JPYBRL.ask
+                            : "Sem dados"}
+                        </Text>
+                      ) : (
+                        <ActivityIndicator size={"small"} color={"#fcf949"} />
+                      )}
+                    </Text>
 
-                  <Feather
-                      name={icon}
+                    <Feather
+                      name={iconAsk}
                       size={25}
-                      color={icon == "trending-up" ? "#ff3646" : "#7aff52"}
+                      color={iconAsk == "trending-up" ? "#ff3646" : "#7aff52"}
                     />
                   </View>
                 </View>
@@ -455,34 +625,59 @@ export default function Home() {
                   <FontAwesome5 name="chart-area" size={24} color="#fcf949" />
                   <Text style={s.subititle}>Gráficos: </Text>
                 </View>
-                <TouchableOpacity
-                  onPress={toggleModal}
-                  style={{
-                    backgroundColor: "#242424",
-                    borderRadius: 5,
-                    width: 130,
-                    height: 40,
-                    flexDirection: "row",
-                    alignItems: "center",
-                    justifyContent: "space-evenly",
-                  }}
-                >
-                  <Text style={s.text}>
-                    {selectGraf == "bid"
-                      ? "Compra"
-                      : selectGraf == "ask"
-                      ? "Venda"
-                      : selectGraf == "high"
-                      ? "Mais alto"
-                      : "Mais baixo"}
-                  </Text>
 
-                  <MaterialIcons
-                    name="arrow-drop-down"
-                    size={25}
-                    color="#fcf949"
-                  />
-                </TouchableOpacity>
+                <View>
+                  <TouchableOpacity
+                    activeOpacity={0.6}
+                    onPress={toggleDropdownGrafMoedas}
+                    style={{
+                      backgroundColor: "#242424",
+                      borderRadius: 5,
+                      width: 130,
+                      height: 40,
+                      flexDirection: "row",
+                      alignItems: "center",
+                      justifyContent: "space-evenly",
+                    }}
+                  >
+                    <Text style={s.text}>
+                      {selectGraf == "bid"
+                        ? "Compra"
+                        : selectGraf == "ask"
+                        ? "Venda"
+                        : selectGraf == "high"
+                        ? "Mais alto"
+                        : "Mais baixo"}
+                    </Text>
+
+                    <MaterialIcons
+                      name="arrow-drop-down"
+                      size={25}
+                      color="#fcf949"
+                    />
+                  </TouchableOpacity>
+                  {isDropdownGrafVisible && (
+                    <View style={[s.dropdownGraf, { top: 35 }]}>
+                      {opcoesGrafico.map((option, index) => (
+                        <TouchableOpacity
+                          key={index}
+                          onPress={() => {
+                            setSelectGraf(option.value as keyof ValorGrafico);
+                            toggleDropdownGrafMoedas();
+                          }}
+                          style={{
+                            paddingVertical: 10,
+                            paddingHorizontal: 15,
+                          }}
+                        >
+                          <Text style={[s.text, { fontSize: 16 }]}>
+                            {option.label}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  )}
+                </View>
               </View>
 
               <View style={{ borderRadius: 10, overflow: "hidden" }}>
@@ -543,8 +738,17 @@ export default function Home() {
                     Valor mais alto(hoje):
                   </Text>
                   <Text style={[s.subititle, { fontSize: 17 }]}>
-                    {valores && valores.USDBRL ? (
-                      `R$ ${valores.USDBRL.high}`
+                    {valores ? (
+                      <Text>
+                        R${" "}
+                        {moeda === "Dólar"
+                          ? valores.USDBRL.high
+                          : moeda === "Euro"
+                          ? valores.EURBRL.high
+                          : moeda === "Iene"
+                          ? valores.JPYBRL.high
+                          : "Sem dados"}
+                      </Text>
                     ) : (
                       <ActivityIndicator size={"small"} color={"#fcf949"} />
                     )}
@@ -557,8 +761,17 @@ export default function Home() {
                     Valor mais baixo(hoje):
                   </Text>
                   <Text style={[s.subititle, { fontSize: 17 }]}>
-                    {valores && valores.USDBRL ? (
-                      `R$ ${valores.USDBRL.low}`
+                    {valores ? (
+                      <Text>
+                        R${" "}
+                        {moeda === "Dólar"
+                          ? valores.USDBRL.low
+                          : moeda === "Euro"
+                          ? valores.EURBRL.low
+                          : moeda === "Iene"
+                          ? valores.JPYBRL.low
+                          : "Sem dados"}
+                      </Text>
                     ) : (
                       <ActivityIndicator size={"small"} color={"#fcf949"} />
                     )}
@@ -569,17 +782,13 @@ export default function Home() {
           </View>
 
           <View style={[s.flatList]}>
-
-            <View style={{marginHorizontal: 15, flexDirection: 'row', gap: 10}}>
-            <Ionicons name="logo-bitcoin" size={24} color="#fcf949" />
-            <Text
-              style={[
-                s.subititle,
-                { alignSelf: "flex-start",  },
-              ]}
+            <View
+              style={{ marginHorizontal: 15, flexDirection: "row", gap: 10 }}
             >
-              Criptomoedas:
-            </Text>
+              <Ionicons name="logo-bitcoin" size={24} color="#fcf949" />
+              <Text style={[s.subititle, { alignSelf: "flex-start" }]}>
+                Criptomoedas:
+              </Text>
             </View>
 
             <FlatList
@@ -751,41 +960,16 @@ export default function Home() {
           animationOut="slideOutDown"
         >
           <View style={s.modal}>
-            <Text style={s.title}>Selecione o filtro:</Text>
+            <Text style={s.title}>Sobre o Coinde<Text style={{ color: "#fcf949" }}>x</Text></Text>
 
             <View style={{ gap: 15, width: "80%" }}>
-              <TouchableOpacity
-                onPress={() => {
-                  setSelectGraf("high"), toggleModal();
-                }}
-                style={s.optionsButton}
-              >
-                <Text style={s.text}>Valor mais alto</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => {
-                  setSelectGraf("low"), toggleModal();
-                }}
-                style={s.optionsButton}
-              >
-                <Text style={s.text}>Valor mais baixo</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => {
-                  setSelectGraf("bid"), toggleModal();
-                }}
-                style={s.optionsButton}
-              >
-                <Text style={s.text}>Valor de compra</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => {
-                  setSelectGraf("ask"), toggleModal();
-                }}
-                style={s.optionsButton}
-              >
-                <Text style={s.text}>Valor de venda</Text>
-              </TouchableOpacity>
+              <Text style={[s.text]}>
+                O Coindex é um aplicativo que permite acompanhar e analisar, em tempo real, as cotações de moedas como o Dólar e o Euro, além das principais criptomoedas do mercado. Tudo isso utilizando a poderosa API de cotações da Awesome API.
+                {`\n`}
+                {`\n`}
+                O Aplicativo ainda está em desenvolvimento e receberá mais atualizações no 
+                futuro
+              </Text>
             </View>
             <TouchableOpacity
               onPress={toggleModal}
@@ -794,7 +978,6 @@ export default function Home() {
                 {
                   borderWidth: 2,
                   borderColor: "#fcf949",
-                  backgroundColor: "#121212",
                   width: "80%",
                 },
               ]}
@@ -912,10 +1095,10 @@ const s = StyleSheet.create({
   },
 
   modal: {
-    height: 350,
-    backgroundColor: "#121212",
+    height: 400,
+    backgroundColor: "#242424",
     borderRadius: 15,
-    padding: 15,
+    paddingVertical: 25,
     alignItems: "center",
     justifyContent: "space-between",
   },
@@ -928,5 +1111,26 @@ const s = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     height: 40,
+  },
+
+  dropdown: {
+    position: "absolute",
+    backgroundColor: "#292929",
+    width: "95%",
+    borderRadius: 15,
+    borderWidth: 2,
+    borderColor: "#fcf949",
+    padding: 10,
+    zIndex: 1,
+  },
+
+  dropdownGraf: {
+    position: "absolute",
+    backgroundColor: "#242424",
+    width: "100%",
+    padding: 10,
+    zIndex: 1,
+    borderBottomLeftRadius: 5,
+    borderBottomRightRadius: 5,
   },
 });
