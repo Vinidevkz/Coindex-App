@@ -41,11 +41,10 @@ import {
   FontAwesome6,
   MaterialCommunityIcons,
   MaterialIcons,
+  Ionicons
 } from "@expo/vector-icons";
-import { parse } from "@babel/core";
 
 export default function Home() {
-
   const [trandingBitcoin, setTrandingBitcoin] = useState(true);
   const [trandingEthereum, setTrandingEthereum] = useState(false);
   const [trandingDogecoin, setTrandingDogecoin] = useState(true);
@@ -59,8 +58,8 @@ export default function Home() {
   const [grafDogecoin, setGrafDogecoin] = useState<ValorGrafico[] | null>(null);
   const [grafLitecoin, setGrafLitecoin] = useState<ValorGrafico[] | null>(null);
 
-  const ultimoValor = useRef(null)
-  const [icon, setIcon] = useState<"trending-up" | "trending-down">("trending-down")
+  const ultimoValor = useRef(null);
+  const [icon, setIcon] = useState<"trending-up" | "trending-down">();
   const [isModalVisible, setModalVisible] = useState(false);
   const [selectGraf, setSelectGraf] = useState<keyof ValorGrafico>("bid");
 
@@ -68,7 +67,8 @@ export default function Home() {
     setModalVisible(!isModalVisible);
   };
 
-  const statusBarHeight = Platform.OS === "android" ? StatusBar.currentHeight : 0;
+  const statusBarHeight =
+    Platform.OS === "android" ? StatusBar.currentHeight : 0;
 
   //Dados e tipos
   const Data = [
@@ -138,7 +138,6 @@ export default function Home() {
   };
   //
 
-
   //Requisições e APIs
   const valoresAtuais = async () => {
     const url = `https://economia.awesomeapi.com.br/json/last/USD-BRL,EUR-BRL,JPY-BRL,BTC-BRL,ETH-BRL,DOGE-BRL,LTC-BRL?token=${senhaApi}`;
@@ -158,7 +157,7 @@ export default function Home() {
       const response = await request.json();
       setValoresGraf(response);
     } catch (error) {
-      console.log("Erro ao buscar valores: ",error);
+      console.log("Erro ao buscar valores: ", error);
     }
   };
 
@@ -167,11 +166,11 @@ export default function Home() {
     try {
       const request = await fetch(url);
       const response = await request.json();
-      setGrafBitcoin(response)
+      setGrafBitcoin(response);
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  }
+  };
 
   const valoresGrafEthereum = async () => {
     const url = "https://economia.awesomeapi.com.br/json/daily/ETH-BRL/3";
@@ -179,11 +178,11 @@ export default function Home() {
     try {
       const request = await fetch(url);
       const response = await request.json();
-      setGrafEthereum(response)
+      setGrafEthereum(response);
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  }
+  };
 
   const valoresGrafDogecoin = async () => {
     const url = "https://economia.awesomeapi.com.br/json/daily/DOGE-BRL/3";
@@ -191,12 +190,11 @@ export default function Home() {
     try {
       const request = await fetch(url);
       const response = await request.json();
-      setGrafDogecoin(response)
-      console.log(response)
+      setGrafDogecoin(response);
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  }
+  };
 
   const valoresGrafLitecoin = async () => {
     const url = "https://economia.awesomeapi.com.br/json/daily/LTC-BRL/3";
@@ -204,48 +202,59 @@ export default function Home() {
     try {
       const request = await fetch(url);
       const response = await request.json();
-      setGrafLitecoin(response)
+      setGrafLitecoin(response);
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  }
-  
+  };
+
   useEffect(() => {
-    valoresAtuais();
-    valoresGrafico();
-    valoresGrafBitcoin();
-    valoresGrafEthereum();
-    valoresGrafDogecoin();
-    valoresGrafLitecoin();
+    const fetchAll = () => {
+      valoresAtuais();
+      valoresGrafico();
+      valoresGrafBitcoin();
+      valoresGrafEthereum();
+      valoresGrafDogecoin();
+      valoresGrafLitecoin();
+    };
+
+    fetchAll();
+
+    const interval = setInterval(fetchAll, 10000);
+
+    return () => clearInterval(interval);
   }, []);
   //
 
   useEffect(() => {
-    if (valores && valores.USDBRL){
+    if (valores && valores.USDBRL) {
       const novoValor = parseFloat(valores.USDBRL.bid);
 
       if (ultimoValor.current !== null) {
         if (novoValor > ultimoValor.current) {
           setIcon("trending-up");
         } else {
-          setIcon("trending-down")
+          setIcon("trending-down");
         }
       }
+      ultimoValor.current = novoValor;
+      console.log("Ultimo valor atualizado:", ultimoValor.current);
     }
-  }, [])
+  }, [valores]);
 
   const bitcoinsDates = (dados: any[]) => {
     if (!dados || dados.length === 0) return [];
 
     const dataInicial = new Date(dados[0].create_date);
 
-    return dados.map((_, index) => {
-      const novaData = new Date(dataInicial);
-      novaData.setDate(dataInicial.getDate() - index);
-      return dataFormat(novaData);
-      
-    }).reverse()
-  }
+    return dados
+      .map((_, index) => {
+        const novaData = new Date(dataInicial);
+        novaData.setDate(dataInicial.getDate() - index);
+        return dataFormat(novaData);
+      })
+      .reverse();
+  };
 
   const dataFormat = (date: Date): string => {
     return date.toLocaleDateString("pt-br", {
@@ -263,7 +272,6 @@ export default function Home() {
       const novaData = new Date(dataInicial);
       novaData.setDate(dataInicial.getDate() - index);
       return dataFormat(novaData);
-
     });
   }
 
@@ -304,9 +312,8 @@ export default function Home() {
               zIndex: 1,
               paddingHorizontal: 15,
               paddingTop: statusBarHeight,
-              backgroundColor: "#121212",
-              borderBottomWidth: 3,
-              borderColor: '#4a4a4a',
+              backgroundColor: "#222222",
+              borderRadius: 30,
 
             },
           ]}
@@ -315,37 +322,70 @@ export default function Home() {
             Coinde<Text style={{ color: "#fcf949" }}>x</Text>
           </Text>
 
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "space-between",
-              width: "20%",
-            }}
-          >
-            <MaterialIcons name="arrow-drop-down" size={25} color="#fcf949" />
-            <Image
-              style={s.profileBackground}
-              source={require("../src/assets/imgs/usa.png")}
-            />
-          </View>
+          <TouchableOpacity>
+            <FontAwesome name="question-circle-o" size={35} color="#fcf949" />
+          </TouchableOpacity>
         </View>
 
         <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
           <View style={s.header}>
+            <View
+              style={{
+                flexDirection: "row",
+                width: '100%',
+                paddingHorizontal: 15,
+                marginVertical: 15,
+                alignItems: "center",
+                justifyContent: 'space-between',
+                borderWidth: 2,
+                borderRadius: 20,
+                borderColor: '#fcf949',
+                padding: 15
+              }}
+            >
+              <View style={{flexDirection: "row", gap: 10}}>
+              <Text style={[s.subititle, {fontSize: 25}]}>Dólar atual</Text>
+              </View>
+
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  width: "20%",
+                }}
+              >
+                <MaterialIcons
+                  name="arrow-drop-down"
+                  size={25}
+                  color="#fcf949"
+                />
+                <Image
+                  style={s.profileBackground}
+                  source={require("../src/assets/imgs/usa.png")}
+                />
+              </View>
+            </View>
+
             <View style={s.card}>
-              <View style={{ paddingTop: 25, paddingBottom: 15 }}>
+              <View style={{ paddingBottom: 15 }}>
                 <View style={[s.line, { padding: 0, width: "95%" }]}>
                   <Text
                     style={[
                       s.subititle,
-                      { fontSize: 25, alignSelf: "flex-start" },
+                      { fontSize: 20, alignSelf: "flex-start" },
                     ]}
                   >
-                    Dólar atual<Text style={{ fontSize: 16 }}>(compra)</Text>:
+                    Valor de compra:
                   </Text>
 
-                  <View style={{flexDirection: 'row', gap: 10, alignItems: 'center'}}>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      gap: 10,
+                      alignItems: "center",
+                    }}
+                  >
                     <Text
                       style={[
                         s.subititle,
@@ -353,29 +393,35 @@ export default function Home() {
                       ]}
                     >
                       {valores && valores.USDBRL ? (
-                          <Text>
-                            R$ {valores.USDBRL.bid}
-                          </Text>
+                        <Text>R$ {valores.USDBRL.bid}</Text>
                       ) : (
                         <ActivityIndicator size={"small"} color={"#fcf949"} />
                       )}
                     </Text>
-                    
-                     <Feather style={{borderBottomWidth: 2, borderColor: icon == "trending-up" ? "#ff3646"  : "#7aff52"}} name={icon} size={20} color={icon == "trending-up" ? "#ff3646" : "#7aff52"} />
-                    
+
+                    <Feather
+                      name={icon}
+                      size={25}
+                      color={icon == "trending-up" ? "#ff3646" : "#7aff52"}
+                    />
                   </View>
                 </View>
 
                 <View style={[s.line, { padding: 0, width: "95%" }]}>
                   <Text
-                    style={[s.title, { fontSize: 17, alignSelf: "flex-start" }]}
+                    style={[
+                      s.subititle,
+                      { fontSize: 20, alignSelf: "flex-start" },
+                    ]}
                   >
                     Valor de venda:
                   </Text>
+
+                  <View style={{flexDirection: 'row', gap: 10, alignItems: 'center'}}>
                   <Text
                     style={[
                       s.subititle,
-                      { fontSize: 17, alignSelf: "flex-start" },
+                      { fontSize: 25, alignSelf: "flex-start" },
                     ]}
                   >
                     {valores && valores.USDBRL ? (
@@ -384,9 +430,14 @@ export default function Home() {
                       <ActivityIndicator size={"small"} color={"#fcf949"} />
                     )}
                   </Text>
+
+                  <Feather
+                      name={icon}
+                      size={25}
+                      color={icon == "trending-up" ? "#ff3646" : "#7aff52"}
+                    />
+                  </View>
                 </View>
-
-
               </View>
 
               <View
@@ -400,8 +451,10 @@ export default function Home() {
                   },
                 ]}
               >
-                <Text style={s.subititle}>Gráfico: </Text>
-
+                <View style={{ flexDirection: "row", gap: 5 }}>
+                  <FontAwesome5 name="chart-area" size={24} color="#fcf949" />
+                  <Text style={s.subititle}>Gráficos: </Text>
+                </View>
                 <TouchableOpacity
                   onPress={toggleModal}
                   style={{
@@ -439,9 +492,9 @@ export default function Home() {
                     datasets: [
                       {
                         data: valoresGraf
-                          ? valoresGraf.map((item) =>
-                              parseFloat(item[selectGraf])
-                            ).reverse()
+                          ? valoresGraf
+                              .map((item) => parseFloat(item[selectGraf]))
+                              .reverse()
                           : [0],
                       },
                     ],
@@ -462,9 +515,9 @@ export default function Home() {
                       borderRadius: 16,
                     },
                     propsForDots: {
-                      r: "5",
-                      strokeWidth: "2",
-                      stroke: "#ffa726",
+                      r: "2",
+                      strokeWidth: "5",
+                      stroke: "#8cff8a",
                     },
                   }}
                   bezier
@@ -474,19 +527,22 @@ export default function Home() {
                 />
               </View>
 
-              <View style={{  paddingVertical: 15, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 25}}>
-                <View style={[ { alignItems: 'center', justifyContent: 'center' }]}>
-                  <Text
-                    style={[s.title, { fontSize: 17 }]}
-                  >
+              <View
+                style={{
+                  paddingVertical: 15,
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 25,
+                }}
+              >
+                <View
+                  style={[{ alignItems: "center", justifyContent: "center" }]}
+                >
+                  <Text style={[s.title, { fontSize: 17 }]}>
                     Valor mais alto(hoje):
                   </Text>
-                  <Text
-                    style={[
-                      s.subititle,
-                      { fontSize: 17  },
-                    ]}
-                  >
+                  <Text style={[s.subititle, { fontSize: 17 }]}>
                     {valores && valores.USDBRL ? (
                       `R$ ${valores.USDBRL.high}`
                     ) : (
@@ -494,18 +550,13 @@ export default function Home() {
                     )}
                   </Text>
                 </View>
-                <View style={[ { alignItems: 'center', justifyContent: 'center' }]}>
-                  <Text
-                    style={[s.title, { fontSize: 17 }]}
-                  >
+                <View
+                  style={[{ alignItems: "center", justifyContent: "center" }]}
+                >
+                  <Text style={[s.title, { fontSize: 17 }]}>
                     Valor mais baixo(hoje):
                   </Text>
-                  <Text
-                    style={[
-                      s.subititle,
-                      { fontSize: 17 },
-                    ]}
-                  >
+                  <Text style={[s.subititle, { fontSize: 17 }]}>
                     {valores && valores.USDBRL ? (
                       `R$ ${valores.USDBRL.low}`
                     ) : (
@@ -514,41 +565,48 @@ export default function Home() {
                   </Text>
                 </View>
               </View>
-
             </View>
           </View>
 
           <View style={[s.flatList]}>
+
+            <View style={{marginHorizontal: 15, flexDirection: 'row', gap: 10}}>
+            <Ionicons name="logo-bitcoin" size={24} color="#fcf949" />
             <Text
               style={[
                 s.subititle,
-                { alignSelf: "flex-start", marginHorizontal: 15 },
+                { alignSelf: "flex-start",  },
               ]}
             >
               Criptomoedas:
             </Text>
+            </View>
 
             <FlatList
               horizontal={true}
               showsHorizontalScrollIndicator={false}
               data={Data}
-              style={{height: 500}}
+              style={{ height: 500 }}
               keyExtractor={(item) => item.id.toString()}
               renderItem={({ item }) => (
-                <View
-                  style={s.bitcoinCont}
-                >
+                <View style={s.bitcoinCont}>
                   <View
                     style={{
                       flexDirection: "row",
                       gap: 15,
                       alignItems: "center",
-                      justifyContent: 'space-between',
+                      justifyContent: "space-between",
                       padding: 15,
-                      width: '100%'
+                      width: "100%",
                     }}
                   >
-                    <View style={{flexDirection: 'row', alignItems: 'center',  width: 140}}>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                        width: 140,
+                      }}
+                    >
                       <View
                         style={[
                           s.profileBackground,
@@ -556,7 +614,11 @@ export default function Home() {
                         ]}
                       >
                         {item.iconName === "bitcoin" ? (
-                          <FontAwesome name="bitcoin" size={24} color="#fcf949" />
+                          <FontAwesome
+                            name="bitcoin"
+                            size={24}
+                            color="#fcf949"
+                          />
                         ) : item.iconName === "ethereum" ? (
                           <FontAwesome5
                             name="ethereum"
@@ -577,16 +639,24 @@ export default function Home() {
                           />
                         )}
                       </View>
-                      <Text style={[s.subititle, {paddingLeft: 15}]}>
+                      <Text style={[s.subititle, { paddingLeft: 15 }]}>
                         {item.nome}{" "}
                         {item.trading ? (
-                          <Feather name="trending-up" size={20} color="#ff3646" />
+                          <Feather
+                            name="trending-up"
+                            size={20}
+                            color="#ff3646"
+                          />
                         ) : (
-                          <Feather name="trending-down" size={20} color="#7aff52" />
+                          <Feather
+                            name="trending-down"
+                            size={20}
+                            color="#7aff52"
+                          />
                         )}
                       </Text>
                     </View>
-                    <Text style={[s.subititle, {fontSize: 20}]}>
+                    <Text style={[s.subititle, { fontSize: 20 }]}>
                       {valores ? (
                         item.nome === "Bitcoin" ? (
                           `R$ ${valores.BTCBRL?.bid}`
@@ -604,55 +674,70 @@ export default function Home() {
                       )}
                     </Text>
                   </View>
-                  
-                  <LineChart
-                  data={{
-                    labels: bitcoinsDates(grafBitcoin ?? []),
-                    datasets: [
-                      {
-                        data: 
-                          item.nome === "Bitcoin" && grafBitcoin
-                            ? grafBitcoin.map((d) => parseFloat(d[selectGraf])).reverse()
-                            : item.nome === "Ethereum" && grafEthereum
-                            ? grafEthereum.map((d) => parseFloat(d[selectGraf])).reverse()
-                            : item.nome === "Dogecoin" && grafDogecoin
-                            ? grafDogecoin.map((d) => parseFloat(d[selectGraf])).reverse()
-                            : item.nome === "Litecoin" && grafLitecoin
-                            ? grafLitecoin.map((d) => parseFloat(d[selectGraf])).reverse()
-                            : [0],
-                      },
-                    ],
-                  }}
-                  width={330}
-                  height={200}
-                  yAxisLabel="R$"
-                  yLabelsOffset={7}
-                  chartConfig={{
-                    backgroundColor: "#1b1b1b",
-                    backgroundGradientFrom: "#121212",
-                    backgroundGradientTo: "#121212",
-                    decimalPlaces: 2,
-                    color: (opacity = 3) => `rgba(255, 255, 255, ${opacity})`,
-                    labelColor: (opacity = 1) =>
-                      `rgba(255, 255, 255, ${opacity})`,
-                    style: {
-                      borderRadius: 16,
-                    },
-                    propsForDots: {
-                      r: "5",
-                      strokeWidth: "2",
-                      stroke: "#ffa726",
-                    },
-                  }}
-                  bezier
-                  style={{
-                    elevation: 20,
-                  }}
-                />
 
-                <View>
-                  <Text style={s.title}>SÓPATESTA</Text>
-                </View>
+                  <LineChart
+                    data={{
+                      labels: bitcoinsDates(grafBitcoin ?? []),
+                      datasets: [
+                        {
+                          data:
+                            item.nome === "Bitcoin" && grafBitcoin
+                              ? grafBitcoin
+                                  .map((d) => parseFloat(d[selectGraf]))
+                                  .reverse()
+                              : item.nome === "Ethereum" && grafEthereum
+                              ? grafEthereum
+                                  .map((d) => parseFloat(d[selectGraf]))
+                                  .reverse()
+                              : item.nome === "Dogecoin" && grafDogecoin
+                              ? grafDogecoin
+                                  .map((d) => parseFloat(d[selectGraf]))
+                                  .reverse()
+                              : item.nome === "Litecoin" && grafLitecoin
+                              ? grafLitecoin
+                                  .map((d) => parseFloat(d[selectGraf]))
+                                  .reverse()
+                              : [0],
+                        },
+                      ],
+                    }}
+                    width={330}
+                    height={200}
+                    yAxisLabel="R$"
+                    yLabelsOffset={7}
+                    chartConfig={{
+                      backgroundColor: "#1b1b1b",
+                      backgroundGradientFrom: "#121212",
+                      backgroundGradientTo: "#121212",
+                      decimalPlaces: 2,
+                      color: (opacity = 3) => `rgba(255, 255, 255, ${opacity})`,
+                      labelColor: (opacity = 1) =>
+                        `rgba(255, 255, 255, ${opacity})`,
+                      style: {
+                        borderRadius: 16,
+                      },
+                      propsForDots: {
+                        r: "2",
+                        strokeWidth: "5",
+                        stroke:
+                          item.nome === "Bitcoin"
+                            ? "#fcf949"
+                            : item.nome === "Ethereum"
+                            ? "#42cbf5"
+                            : item.nome === "Dogecoin"
+                            ? "#f4f4f4"
+                            : "#6b5fed",
+                      },
+                    }}
+                    bezier
+                    style={{
+                      elevation: 20,
+                    }}
+                  />
+
+                  <View>
+                    <Text style={s.title}>SÓPATESTA</Text>
+                  </View>
                 </View>
               )}
             />
@@ -780,9 +865,9 @@ const s = StyleSheet.create({
     gap: 10,
     backgroundColor: "#121212",
     borderRadius: 15,
-    alignItems: 'center',
+    alignItems: "center",
     justifyContent: "space-between",
-    elevation: 10
+    elevation: 10,
   },
 
   line: {
