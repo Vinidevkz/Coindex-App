@@ -18,6 +18,8 @@ import {
   Platform,
   TouchableOpacity,
   Image,
+  Linking,
+  Alert
 } from "react-native";
 import {
   useFonts,
@@ -35,13 +37,13 @@ import Modal from "react-native-modal";
 import { senhaApi } from "../src/services/apidoc";
 
 import {
-  Feather,
+  MaterialIcons,
   FontAwesome,
   FontAwesome5,
   FontAwesome6,
   MaterialCommunityIcons,
-  MaterialIcons,
   Ionicons,
+  Feather
 } from "@expo/vector-icons";
 
 export default function Home() {
@@ -68,13 +70,13 @@ export default function Home() {
   const ultimoValorDogecoin = useRef<number | null>(null)
   const ultimoValorLitecoin = useRef<number | null>(null)
 
-  const [iconBitcoinBid, setBitcoinBid] = useState<"trending-up" | "trending-down">();
-  const [iconEthereumBid, setEthereumBid] = useState<"trending-up" | "trending-down">();
-  const [iconDogecoinBid, setDogecoinBid] = useState<"trending-up" | "trending-down">();
-  const [iconLitecoinBid, setLitecoinBid] = useState<"trending-up" | "trending-down">();
+  const [iconBitcoinBid, setBitcoinBid] = useState<"trending-up" | "trending-down" | "trending-flat">("trending-flat");
+  const [iconEthereumBid, setEthereumBid] = useState<"trending-up" | "trending-down" | "trending-flat">("trending-flat");
+  const [iconDogecoinBid, setDogecoinBid] = useState<"trending-up" | "trending-down" | "trending-flat">("trending-flat");
+  const [iconLitecoinBid, setLitecoinBid] = useState<"trending-up" | "trending-down" | "trending-flat">("trending-flat");
 
-  const [iconBid, setIconBid] = useState<"trending-up" | "trending-down">();
-  const [iconAsk, setIconAsk] = useState<"trending-up" | "trending-down">();
+  const [iconBid, setIconBid] = useState<"trending-up" | "trending-down" | "trending-flat">("trending-flat");
+  const [iconAsk, setIconAsk] = useState<"trending-up" | "trending-down" | "trending-flat">("trending-flat");
 
   const [isModalVisible, setModalVisible] = useState(false);
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
@@ -85,6 +87,20 @@ export default function Home() {
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
   };
+
+  const openLinkApi = () => {
+    const link = "https://docs.awesomeapi.com.br/";
+    Linking.openURL(link).catch((err) => {
+      Alert.alert("Erro ao abrir o link", "Verifique sua conexão com a internet e tente novamente.")
+    })
+  }
+
+  const openLinkGitHub = () => {
+    const link = "https://github.com/Vinidevkz/Coindex-App";
+    Linking.openURL(link).catch((err) => {
+      Alert.alert("Erro ao abrir o link", "Verifique sua conexão com a internet e tente novamente.")
+    })
+  }
 
   const statusBarHeight =
     Platform.OS === "android" ? StatusBar.currentHeight : 0;
@@ -166,7 +182,18 @@ export default function Home() {
 
   //Requisições e APIs
   const valoresAtuais = async () => {
-    const url = `https://economia.awesomeapi.com.br/json/last/USD-BRL,EUR-BRL,JPY-BRL,BTC-BRL,ETH-BRL,DOGE-BRL,LTC-BRL?token=${senhaApi}`;
+    const url = `https://economia.awesomeapi.com.br/json/last/USD-BRL,EUR-BRL,JPY-BRL,BTC-BRL,ETH-BRL,DOGE-BRL,LTC-BRL?${senhaApi}`;
+    try {
+      const request = await fetch(url);
+      const response: ValoresAPI = await request.json();
+      setValores(response);
+    } catch (error) {
+      console.log("Erro ao buscar valores: ", error);
+    }
+  };
+
+  const valoresAnteriores = async () => {
+    const url = `https://economia.awesomeapi.com.br/json/daily/${moeda}/1`;
     try {
       const request = await fetch(url);
       const response: ValoresAPI = await request.json();
@@ -267,9 +294,9 @@ export default function Home() {
             setIconBid("trending-up");
           } else if (novoValor < ultimoValorCompra.current) {
             setIconBid("trending-down");
-          }
+          } 
         
-
+          console.log("Último valor:", ultimoValorCompra.current, "Novo valor:", novoValor);
         }
 
         ultimoValorCompra.current = novoValor;
@@ -286,12 +313,12 @@ export default function Home() {
             setIconAsk("trending-up");
           } else if (novoValor < ultimoValorVenda.current) {
             setIconAsk("trending-down");
-          }
+          } 
         
 
         }
         ultimoValorVenda.current = novoValor;
-        //console.log("Ultimo valor de venda: ", ultimoValorVenda);
+        console.log("Ultimo valor de venda: ", ultimoValorVenda);
       }
     }
 
@@ -306,7 +333,7 @@ export default function Home() {
             setIconBid("trending-up");
           } else if (novoValor < ultimoValorCompra.current){
             setIconBid("trending-down");
-          }
+          } 
         
 
         }
@@ -324,7 +351,7 @@ export default function Home() {
             setIconAsk("trending-up");
           } else if (novoValor < ultimoValorVenda.current) {
             setIconAsk("trending-down");
-          }
+          } 
         
 
         }
@@ -343,7 +370,7 @@ export default function Home() {
             setIconBid("trending-up");
           } else if (novoValor < ultimoValorCompra.current) {
             setIconBid("trending-down");
-          }
+          } 
         
       }
         ultimoValorCompra.current = novoValor;
@@ -359,7 +386,7 @@ export default function Home() {
             setIconAsk("trending-up");
           } else if (novoValor < ultimoValorVenda.current) {
             setIconAsk("trending-down");
-          }
+          } 
         
 
         }
@@ -377,7 +404,7 @@ export default function Home() {
           setBitcoinBid("trending-up");
         } else if (novoValor < ultimoValorBitcoin.current) {
           setBitcoinBid("trending-down");
-        }
+        } 
       
 
       }
@@ -394,7 +421,7 @@ export default function Home() {
           setEthereumBid("trending-up");
         } else if (novoValor < ultimoValorEthereum.current) {
           setEthereumBid("trending-down");
-        }
+        } 
       
 
       }
@@ -410,7 +437,7 @@ export default function Home() {
             setDogecoinBid("trending-up");
           } else if (novoValor < ultimoValorDogecoin.current) {
             setDogecoinBid("trending-down");
-          }
+          } 
         
       }
       ultimoValorDogecoin.current  = novoValor;
@@ -426,14 +453,14 @@ export default function Home() {
             setLitecoinBid("trending-up");
           } else if (novoValor < ultimoValorLitecoin.current) {
             setLitecoinBid("trending-down");
-          }
+          } 
 
       }
       ultimoValorLitecoin.current  = novoValor;
 
-      console.log("Último valor:", ultimoValorLitecoin.current, "Novo valor:", novoValor);
+      
     }
-  }, [valores]);
+  }, [valores, valoresGraf]);
 
   const bitcoinsDates = (dados: any[]) => {
     if (!dados || dados.length === 0) return [];
@@ -654,10 +681,10 @@ export default function Home() {
                       )}
                     </Text>
 
-                    <Feather
+                    <MaterialIcons
                       name={iconBid}
                       size={25}
-                      color={iconBid == "trending-up" ? "#ff3646" : "#7aff52"}
+                      color={iconBid == "trending-up" ? "#ff3646" : iconBid == "trending-down" ? "#7aff52" : "#c4c4c4"}
                     />
                   </View>
                 </View>
@@ -701,10 +728,10 @@ export default function Home() {
                       )}
                     </Text>
 
-                    <Feather
+                    <MaterialIcons
                       name={iconAsk}
                       size={25}
-                      color={iconAsk == "trending-up" ? "#ff3646" : "#7aff52"}
+                      color={iconAsk == "trending-up" ? "#ff3646" : iconAsk == "trending-down" ? "#7aff52" : "#c4c4c4"}
                     />
                   </View>
                 </View>
@@ -951,7 +978,7 @@ export default function Home() {
                       <Text style={[s.subititle, { paddingLeft: 15 }]}>
                         {item.nome}{" "}
 
-                          <Feather
+                          <MaterialIcons
                             name={item.nome === "Bitcoin" ? iconBitcoinBid : item.nome === "Ethereum" ? iconEthereumBid : item.nome === "Dogecoin" ? iconDogecoinBid : iconLitecoinBid }
                             size={20}
                             color={ item.nome === "Bitcoin" && iconBitcoinBid === "trending-up" ? "#ff3646" : item.nome === "Ethereum" && iconEthereumBid === "trending-up" ? "#ff3646" : item.nome === "Dogecoin" && iconDogecoinBid === "trending-up" ? "#ff3646" : item.nome === "Litecoin" && iconLitecoinBid === "trending-up" ? "#ff3646" : "#7aff52"}
@@ -1058,12 +1085,27 @@ export default function Home() {
 
             <View style={{ gap: 15, width: "80%" }}>
               <Text style={[s.text]}>
-                O Coindex é um aplicativo que permite acompanhar e analisar, em tempo real, as cotações de moedas como o Dólar e o Euro, além das principais criptomoedas do mercado. Tudo isso utilizando a poderosa API de cotações da Awesome API.
+                O Coindex é um aplicativo que permite acompanhar e analisar, em tempo real, as cotações de moedas como o Dólar e o Euro, além das principais criptomoedas do mercado. Tudo isso utilizando a API de cotações da Awesome API.
                 {`\n`}
                 {`\n`}
                 O Aplicativo ainda está em desenvolvimento e receberá mais atualizações no 
                 futuro
               </Text>
+            </View>
+
+            <View style={{gap: 15}}>
+
+            <TouchableOpacity style={s.linkButton} onPress={openLinkGitHub}>
+                <Text style={[s.text, {color: '#fcf949'}]}>GitHub</Text>
+                <Feather name="external-link" size={24} color="#fcf949" />
+              </TouchableOpacity>
+
+              <TouchableOpacity style={s.linkButton} onPress={openLinkApi}>
+                <Text style={[s.text, {color: '#fcf949'}]}>Documentação da API</Text>
+                <Feather name="external-link" size={24} color="#fcf949" />
+              </TouchableOpacity>
+
+
             </View>
             <TouchableOpacity
               onPress={toggleModal}
@@ -1189,11 +1231,11 @@ const s = StyleSheet.create({
   },
 
   modal: {
-    height: 400,
+    height: 500,
     backgroundColor: "#242424",
     borderRadius: 15,
     paddingVertical: 25,
-    alignItems: "center",
+    alignItems: 'center',
     justifyContent: "space-between",
   },
 
@@ -1227,4 +1269,13 @@ const s = StyleSheet.create({
     borderBottomLeftRadius: 5,
     borderBottomRightRadius: 5,
   },
+
+  linkButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 10,
+    width: '80%',
+    height: 30,
+  }
 });
