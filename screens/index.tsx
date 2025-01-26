@@ -63,6 +63,16 @@ export default function Home() {
   const ultimoValorCompra = useRef<number | null>(null);
   const ultimoValorVenda = useRef<number | null>(null);
 
+  const ultimoValorBitcoin = useRef<number | null>(null)
+  const ultimoValorEthereum = useRef<number | null>(null)
+  const ultimoValorDogecoin = useRef<number | null>(null)
+  const ultimoValorLitecoin = useRef<number | null>(null)
+
+  const [iconBitcoinBid, setBitcoinBid] = useState<"trending-up" | "trending-down">();
+  const [iconEthereumBid, setEthereumBid] = useState<"trending-up" | "trending-down">();
+  const [iconDogecoinBid, setDogecoinBid] = useState<"trending-up" | "trending-down">();
+  const [iconLitecoinBid, setLitecoinBid] = useState<"trending-up" | "trending-down">();
+
   const [iconBid, setIconBid] = useState<"trending-up" | "trending-down">();
   const [iconAsk, setIconAsk] = useState<"trending-up" | "trending-down">();
 
@@ -187,7 +197,7 @@ export default function Home() {
       const response = await request.json();
       setGrafBitcoin(response);
     } catch (error) {
-      console.log(error);
+      console.log("Erro grafico Bitcoin", error);
     }
   };
 
@@ -199,7 +209,7 @@ export default function Home() {
       const response = await request.json();
       setGrafEthereum(response);
     } catch (error) {
-      console.log(error);
+      console.log("Erro grafico Ethereum: ",error);
     }
   };
 
@@ -211,7 +221,7 @@ export default function Home() {
       const response = await request.json();
       setGrafDogecoin(response);
     } catch (error) {
-      console.log(error);
+      console.log("Erro grafico Dogecoin",error);
     }
   };
 
@@ -223,7 +233,7 @@ export default function Home() {
       const response = await request.json();
       setGrafLitecoin(response);
     } catch (error) {
-      console.log(error);
+      console.log("Erro grafico Litecoin",error);
     }
   };
 
@@ -251,28 +261,37 @@ export default function Home() {
         const novoValor = parseFloat(valores.USDBRL.bid);
 
         if (ultimoValorCompra.current !== null) {
+
+
           if (novoValor > ultimoValorCompra.current) {
             setIconBid("trending-up");
-          } else {
+          } else if (novoValor < ultimoValorCompra.current) {
             setIconBid("trending-down");
           }
+        
+
         }
+
         ultimoValorCompra.current = novoValor;
-        console.log("Ultimo valor de compra: ", ultimoValorCompra);
+        //console.log("Ultimo valor de compra: ", ultimoValorCompra);
       }
 
       if (valores && valores.USDBRL) {
         const novoValor = parseFloat(valores.USDBRL.ask);
 
         if (ultimoValorVenda.current !== null) {
+
+
           if (novoValor > ultimoValorVenda.current) {
             setIconAsk("trending-up");
-          } else {
+          } else if (novoValor < ultimoValorVenda.current) {
             setIconAsk("trending-down");
           }
+        
+
         }
         ultimoValorVenda.current = novoValor;
-        console.log("Ultimo valor de venda: ", ultimoValorVenda);
+        //console.log("Ultimo valor de venda: ", ultimoValorVenda);
       }
     }
 
@@ -281,11 +300,15 @@ export default function Home() {
         const novoValor = parseFloat(valores.EURBRL.bid);
 
         if (ultimoValorCompra.current !== null) {
+
+
           if (novoValor > ultimoValorCompra.current) {
             setIconBid("trending-up");
-          } else {
+          } else if (novoValor < ultimoValorCompra.current){
             setIconBid("trending-down");
           }
+        
+
         }
         ultimoValorCompra.current = novoValor;
         console.log("Ultimo valor de compra: ", ultimoValorCompra);
@@ -295,11 +318,15 @@ export default function Home() {
         const novoValor = parseFloat(valores.EURBRL.ask);
 
         if (ultimoValorVenda.current !== null) {
+
+
           if (novoValor > ultimoValorVenda.current) {
             setIconAsk("trending-up");
-          } else {
+          } else if (novoValor < ultimoValorVenda.current) {
             setIconAsk("trending-down");
           }
+        
+
         }
         ultimoValorVenda.current = novoValor;
         console.log("Ultimo valor de venda: ", ultimoValorVenda);
@@ -311,12 +338,14 @@ export default function Home() {
         const novoValor = parseFloat(valores.JPYBRL.bid);
 
         if (ultimoValorCompra.current !== null) {
+
           if (novoValor > ultimoValorCompra.current) {
             setIconBid("trending-up");
-          } else {
+          } else if (novoValor < ultimoValorCompra.current) {
             setIconBid("trending-down");
           }
-        }
+        
+      }
         ultimoValorCompra.current = novoValor;
       }
 
@@ -324,14 +353,85 @@ export default function Home() {
         const novoValor = parseFloat(valores.JPYBRL.ask);
 
         if (ultimoValorVenda.current !== null) {
+          
+
           if (novoValor > ultimoValorVenda.current) {
             setIconAsk("trending-up");
-          } else {
+          } else if (novoValor < ultimoValorVenda.current) {
             setIconAsk("trending-down");
           }
+        
+
         }
         ultimoValorVenda.current = novoValor;
       }
+    }
+
+    if (valores && valores.BTCBRL){
+      const novoValor = parseFloat(valores.BTCBRL.bid);
+
+      if(ultimoValorBitcoin.current !== null) {
+
+
+        if (novoValor > ultimoValorBitcoin.current) {
+          setBitcoinBid("trending-up");
+        } else if (novoValor < ultimoValorBitcoin.current) {
+          setBitcoinBid("trending-down");
+        }
+      
+
+      }
+      ultimoValorBitcoin.current  = novoValor;
+    }
+
+    if (valores && valores.ETHBRL){
+      const novoValor = parseFloat(valores.ETHBRL.bid);
+
+      if(ultimoValorEthereum.current !== null) {
+
+
+        if (novoValor > ultimoValorEthereum.current) {
+          setEthereumBid("trending-up");
+        } else if (novoValor < ultimoValorEthereum.current) {
+          setEthereumBid("trending-down");
+        }
+      
+
+      }
+      ultimoValorEthereum.current  = novoValor;
+    }
+
+    if (valores && valores.DOGEBRL){
+      const novoValor = parseFloat(valores.DOGEBRL.bid);
+
+      if(ultimoValorDogecoin.current !== null) {
+
+          if (novoValor > ultimoValorDogecoin.current) {
+            setDogecoinBid("trending-up");
+          } else if (novoValor < ultimoValorDogecoin.current) {
+            setDogecoinBid("trending-down");
+          }
+        
+      }
+      ultimoValorDogecoin.current  = novoValor;
+    }
+
+    if (valores && valores.LTCBRL){
+      const novoValor = parseFloat(valores.LTCBRL.bid);
+
+      
+
+      if(ultimoValorLitecoin.current !== null) {
+          if (novoValor > ultimoValorLitecoin.current) {
+            setLitecoinBid("trending-up");
+          } else if (novoValor < ultimoValorLitecoin.current) {
+            setLitecoinBid("trending-down");
+          }
+
+      }
+      ultimoValorLitecoin.current  = novoValor;
+
+      console.log("Último valor:", ultimoValorLitecoin.current, "Novo valor:", novoValor);
     }
   }, [valores]);
 
@@ -850,19 +950,13 @@ export default function Home() {
                       </View>
                       <Text style={[s.subititle, { paddingLeft: 15 }]}>
                         {item.nome}{" "}
-                        {item.trading ? (
+
                           <Feather
-                            name="trending-up"
+                            name={item.nome === "Bitcoin" ? iconBitcoinBid : item.nome === "Ethereum" ? iconEthereumBid : item.nome === "Dogecoin" ? iconDogecoinBid : iconLitecoinBid }
                             size={20}
-                            color="#ff3646"
+                            color={ item.nome === "Bitcoin" && iconBitcoinBid === "trending-up" ? "#ff3646" : item.nome === "Ethereum" && iconEthereumBid === "trending-up" ? "#ff3646" : item.nome === "Dogecoin" && iconDogecoinBid === "trending-up" ? "#ff3646" : item.nome === "Litecoin" && iconLitecoinBid === "trending-up" ? "#ff3646" : "#7aff52"}
                           />
-                        ) : (
-                          <Feather
-                            name="trending-down"
-                            size={20}
-                            color="#7aff52"
-                          />
-                        )}
+                        
                       </Text>
                     </View>
                     <Text style={[s.subititle, { fontSize: 20 }]}>

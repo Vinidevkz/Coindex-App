@@ -13,16 +13,23 @@
       "backgroundColor": "#1b1b1b"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.viniciuseduardo.Coindex"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./src/assets/icon.png",
         "backgroundColor": "#1b1b1b"
-      }
+      },
+      "package": "com.viniciuseduardo.Coindex"
     },
     "web": {
       "favicon": "./src/assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "e8faffb1-b7ad-4192-bc15-202dff4e2baa"
+      }
     }
   }
 }
