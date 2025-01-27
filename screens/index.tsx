@@ -70,13 +70,13 @@ export default function Home() {
   const ultimoValorDogecoin = useRef<number | null>(null)
   const ultimoValorLitecoin = useRef<number | null>(null)
 
-  const [iconBitcoinBid, setBitcoinBid] = useState<"trending-up" | "trending-down" | "trending-flat">("trending-flat");
-  const [iconEthereumBid, setEthereumBid] = useState<"trending-up" | "trending-down" | "trending-flat">("trending-flat");
-  const [iconDogecoinBid, setDogecoinBid] = useState<"trending-up" | "trending-down" | "trending-flat">("trending-flat");
-  const [iconLitecoinBid, setLitecoinBid] = useState<"trending-up" | "trending-down" | "trending-flat">("trending-flat");
+  const [iconBitcoinBid, setBitcoinBid] = useState<"trending-up" | "trending-down"  >();
+  const [iconEthereumBid, setEthereumBid] = useState<"trending-up" | "trending-down"  >();
+  const [iconDogecoinBid, setDogecoinBid] = useState<"trending-up" | "trending-down"  >();
+  const [iconLitecoinBid, setLitecoinBid] = useState<"trending-up" | "trending-down"  >();
 
-  const [iconBid, setIconBid] = useState<"trending-up" | "trending-down" | "trending-flat">("trending-flat");
-  const [iconAsk, setIconAsk] = useState<"trending-up" | "trending-down" | "trending-flat">("trending-flat");
+  const [iconBid, setIconBid] = useState<"trending-up" | "trending-down"  >();
+  const [iconAsk, setIconAsk] = useState<"trending-up" | "trending-down"  >();
 
   const [isModalVisible, setModalVisible] = useState(false);
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
@@ -684,7 +684,7 @@ export default function Home() {
                     <MaterialIcons
                       name={iconBid}
                       size={25}
-                      color={iconBid == "trending-up" ? "#ff3646" : iconBid == "trending-down" ? "#7aff52" : "#c4c4c4"}
+                      color={iconBid == "trending-up" ? "#ff3646" : "#7aff52"}
                     />
                   </View>
                 </View>
@@ -731,7 +731,7 @@ export default function Home() {
                     <MaterialIcons
                       name={iconAsk}
                       size={25}
-                      color={iconAsk == "trending-up" ? "#ff3646" : iconAsk == "trending-down" ? "#7aff52" : "#c4c4c4"}
+                      color={iconAsk == "trending-up" ? "#ff3646" : "#7aff52" }
                     />
                   </View>
                 </View>
@@ -922,7 +922,7 @@ export default function Home() {
               horizontal={true}
               showsHorizontalScrollIndicator={false}
               data={Data}
-              style={{ height: 500 }}
+              style={{ height: 600 }}
               keyExtractor={(item) => item.id.toString()}
               renderItem={({ item }) => (
                 <View style={s.bitcoinCont}>
@@ -1066,7 +1066,17 @@ export default function Home() {
                   />
 
                   <View>
-                    <Text style={s.title}>SÓPATESTA</Text>
+                    <View style={[s.line, {paddingHorizontal: 15}]}>
+                      <Text style={[s.title, {fontSize: 17}]}>Maior Valor</Text>
+
+                      <Text style={[s.subititle, {fontSize: 17}]}>R$ { valores? item.nome === "Bitcoin" ? valores.BTCBRL.high : item.nome === "Ethereum" ? valores?.ETHBRL.high : item.nome === "Dogecoin" ? valores.DOGEBRL.high : item.nome === "Litecoin" ? valores.LTCBRL.high : "Sem dados" : "Erro no servidor" }</Text>
+                    </View>
+
+                    <View style={[s.line, {paddingHorizontal: 15}]}>
+                      <Text style={[s.title, {fontSize: 17}]}>Menor Valor</Text>
+
+                      <Text style={[s.subititle, {fontSize: 17}]}>R$ {valores? item.nome === "Bitcoin" ? valores.BTCBRL.low : item.nome === "Ethereum" ? valores?.ETHBRL.low : item.nome === "Dogecoin" ? valores.DOGEBRL.low : item.nome === "Litecoin" ? valores.LTCBRL.low : "Sem dados" : "Erro no servidor" }</Text>
+                    </View>
                   </View>
                 </View>
               )}
@@ -1172,13 +1182,13 @@ const s = StyleSheet.create({
   },
 
   flatList: {
-    height: 450,
+    height: 500,
     width: "100%",
     paddingVertical: 20,
   },
 
   bitcoinCont: {
-    height: 350,
+    height: 400,
     width: 350,
     margin: 10,
     gap: 10,
