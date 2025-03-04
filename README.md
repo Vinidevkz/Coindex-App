@@ -3,6 +3,7 @@
 <p>O Coindex é um aplicativo mobile que permite acompanhar e analisar, em tempo real, as cotações de moedas como o Dólar e o Euro, além das principais criptomoedas do mercado. 
 Tudo isso utilizando a API de cotações da Awesome API.</p>
 
+
 <h1>Tecnologias Utilizadas:</h1>
 <p>-React Native</p>
 <p>-TypeScript</p>
